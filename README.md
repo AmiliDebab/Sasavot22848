@@ -49,7 +49,7 @@ class ControlSystem(BaseControlSystem):
                      operation="release_cargo",
                      parameters=None)
         cargo_q.put(event)
-  =============================================================================      
+=============================================================================      
 from multiprocessing import Queue
 from src.config import CONTROL_SYSTEM_QUEUE_NAME
 from src.event_types import Event
