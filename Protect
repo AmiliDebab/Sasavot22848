@@ -1,3 +1,93 @@
+from syslog import LOG_WARNING
+from src.config import LOG_DEBUG
+from src.safety_block import BaseSafetyBlock
+from queue import Queue
+
+class SafetyBlock(BaseSafetyBlock):
+    """ класс ограничений безопасности """
+
+    MAX_SPEED = 100.0  # максимальная допустимая скорость
+    MIN_SPEED = 0.0    # минимальная допустимая скорость
+    MAX_DIRECTION = 360.0  # максимальное направление (в градусах)
+    MIN_DIRECTION = 0.0    # минимальное направление (в градусах)
+
+    def __init__(self, queues_dir):
+        super().__init__(queues_dir)
+        self._mission = None
+        self._position = None
+
+    def update_mission(self, mission):
+        """ Обновление маршрутного задания """
+        self._mission = mission
+        self._log_message(LOG_INFO, f"Обновлено маршрутное задание: {self._mission}")
+
+    def update_position(self, position):
+        """ Обновление текущих координат """
+        self._position = position
+        self._log_message(LOG_INFO, f"Обновлены координаты: {self._position}")
+
+    def _set_new_direction(self, direction: float):
+        """ установка нового направления перемещения """
+        self._log_message(LOG_INFO, f"текущие координаты: {self._position}")
+        self._log_message(LOG_DEBUG, f"маршрутное задание: {self._mission}")
+
+        if self._is_direction_safe(direction):
+            self._direction = direction
+            self._send_direction_to_consumers()
+        else:
+            self._log_message(LOG_WARNING, f"Небезопасное направление: {direction}. Устанавливаем в 0.")
+            self.stop()
+
+    def _set_new_speed(self, speed: float):
+        """ установка новой скорости """
+        if self._is_speed_safe(speed):
+            self._speed = speed
+            self._send_speed_to_consumers()
+        else:
+            self._log_message(LOG_WARNING, f"Небезопасная скорость: {speed}. Устанавливаем в 0.")
+            self.stop()
+
+    def stop(self):
+        """ Остановка движения """
+        self._speed = 0.0
+        self._direction = 0.0
+        self._send_speed_to_consumers()
+        self._send_direction_to_consumers()
+    
+    def _is_speed_safe(self, speed: float) -> bool:
+        """ Проверка безопасности скорости """
+        return self.MIN_SPEED <= speed <= self.MAX_SPEED
+
+    def _is_direction_safe(self, direction: float) -> bool:
+        """ Проверка безопасности направления """
+        return self.MIN_DIRECTION <= direction < self.MAX_DIRECTION
+
+    def _send_speed_to_consumers(self):
+        """ Отправка команды на установку скорости в приводы """
+        servos_q_name = SERVOS_QUEUE_NAME
+        servos_q: Queue = self._queues_dir.get_queue(servos_q_name)
+
+        event_speed = Event(source=self.event_source_name,
+                            destination=servos_q_name,
+                            operation="set_speed",
+                            parameters=self._speed)
+        
+        servos_q.put(event_speed)
+    
+    def _send_direction_to_consumers(self):
+        """ Отправка команды на установку направления в приводы """
+        servos_q_name = SERVOS_QUEUE_NAME
+        servos_q: Queue = self._queues_dir.get_queue(servos_q_name)
+
+        event_direction = Event(source=self.event_source_name,
+                                destination=servos_q_name,
+                                operation="set_direction",
+                                parameters=self._direction)
+        
+        servos_q.put(event_direction)
+
+========================================================================
+
 from queue import Queue
 from time import time
 
