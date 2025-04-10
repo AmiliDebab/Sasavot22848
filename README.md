@@ -14,11 +14,12 @@ class CommunicationGateway(BaseCommunicationGateway):
         control_q: Queue = self._queues_dir.get_queue(control_q_name)
         # отправка события в найденную очередь
         control_q.put(event)
-# найдите подходящее имя очереди в файле src/config.py и добавьте в строчку ниже
 from multiprocessing import Queue
 from src.config import SERVOS_QUEUE_NAME, CARGO_BAY_QUEUE_NAME, CONTROL_SYSTEM_QUEUE_NAME
 from src.event_types import Event
 from src.control_system import BaseControlSystem
+
+==========================================================================================
 
 class ControlSystem(BaseControlSystem):
     def _send_speed_and_direction_to_consumers(self, speed, direction):
@@ -48,6 +49,7 @@ class ControlSystem(BaseControlSystem):
                      operation="release_cargo",
                      parameters=None)
         cargo_q.put(event)
+  =============================================================================      
 from multiprocessing import Queue
 from src.config import CONTROL_SYSTEM_QUEUE_NAME
 from src.event_types import Event
