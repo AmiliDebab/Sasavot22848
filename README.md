@@ -17,7 +17,7 @@ from multiprocessing import Queue
 from src.config import SERVOS_QUEUE_NAME, CARGO_BAY_QUEUE_NAME, CONTROL_SYSTEM_QUEUE_NAME
 from src.event_types import Event
 from src.control_system import BaseControlSystem
-==========================================================================================
+
 class ControlSystem(BaseControlSystem):
     def _send_speed_and_direction_to_consumers(self, speed, direction):
         servos_q_name = SERVOS_QUEUE_NAME
@@ -46,7 +46,7 @@ class ControlSystem(BaseControlSystem):
                      operation="release_cargo",
                      parameters=None)
         cargo_q.put(event)
-=============================================================================      
+        
 from multiprocessing import Queue
 from src.config import CONTROL_SYSTEM_QUEUE_NAME
 from src.event_types import Event
