@@ -2,7 +2,6 @@ from multiprocessing import Queue
 from src.communication_gateway import BaseCommunicationGateway
 from src.config import CONTROL_SYSTEM_QUEUE_NAME
 from src.event_types import Event
-
 class CommunicationGateway(BaseCommunicationGateway):
     def _send_mission_to_consumers(self):
         """ метод для отправки сообщения с маршрутным заданием в систему управления """
@@ -18,9 +17,7 @@ from multiprocessing import Queue
 from src.config import SERVOS_QUEUE_NAME, CARGO_BAY_QUEUE_NAME, CONTROL_SYSTEM_QUEUE_NAME
 from src.event_types import Event
 from src.control_system import BaseControlSystem
-
 ==========================================================================================
-
 class ControlSystem(BaseControlSystem):
     def _send_speed_and_direction_to_consumers(self, speed, direction):
         servos_q_name = SERVOS_QUEUE_NAME
@@ -54,7 +51,6 @@ from multiprocessing import Queue
 from src.config import CONTROL_SYSTEM_QUEUE_NAME
 from src.event_types import Event
 from src.navigation_system import BaseNavigationSystem
-
 class NavigationSystem(BaseNavigationSystem):
     def _send_position_to_consumers(self):
         control_q_name = CONTROL_SYSTEM_QUEUE_NAME
